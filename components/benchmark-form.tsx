@@ -37,8 +37,9 @@ export default function BenchmarkForm() {
     cpuWatt: 2.5,
     ramWatt: 0.15,
     baselineWatt: 0.3,
+    timeout: 60, // Default timeout of 60 seconds
     notes: "Rough estimates for M1 MacBook Air - ADJUST FOR YOUR HARDWARE",
-    eGridRegion: defaultRegion.id, 
+    eGridRegion: defaultRegion.id,
     co2Rate: defaultRegion.co2Rate,
   })
 
@@ -99,7 +100,7 @@ export default function BenchmarkForm() {
     setLoadingProgress(0)
     setLoadingStage("Initializing...")
 
-    const clearLoadingAnimation = simulateLoadingStages() 
+    const clearLoadingAnimation = simulateLoadingStages()
 
     let success = false
 
@@ -109,27 +110,27 @@ export default function BenchmarkForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
-            user_code_dir_relative: "../test/code", 
+            user_code_dir_relative: "../test/code",
             code_entrypoint: formData.entrypoint,
             power_assumptions: {
               notes: formData.notes,
-              cpu_per_core_watt: Number.parseFloat(formData.cpuWatt.toString()), 
+              cpu_per_core_watt: Number.parseFloat(formData.cpuWatt.toString()),
               ram_per_gb_watt: Number.parseFloat(formData.ramWatt.toString()),
               baseline_container_watt: Number.parseFloat(formData.baselineWatt.toString()),
             },
             repo_url: formData.repoUrl,
-            co2_rate: formData.co2Rate, 
+            co2_rate: formData.co2Rate,
+            container_wait_timeout: Number.parseInt(formData.timeout.toString()), // Add the timeout value
           },
         }),
       })
 
       if (!res.ok) {
-        let errorBody = "Unknown error"
-        try {
-          errorBody = await res.text() // or res.json() if the API returns JSON errors
-        } catch (parseError) {
-        }
-        throw new Error(`Failed to submit benchmark request (Status: ${res.status}): ${errorBody}`)
+        const errorBody = "Unknown error"
+        toast({
+          title: "Error",
+          description: "Failed to submit the benchmark. Please try again.",
+        })
       }
 
       const data = await res.json()
@@ -143,11 +144,11 @@ export default function BenchmarkForm() {
       const enhancedData = {
         ...data,
         results: {
-          ...(data.results || {}), 
+          ...(data.results || {}),
           regionName: regionInfo?.name || "Unknown Region",
           timestamp: timestamp,
           benchmarkId: benchmarkId,
-          formData: { ...formData, cpuModel: selectedCpuModel !== "custom" ? selectedCpuModel : "Custom", },
+          formData: { ...formData, cpuModel: selectedCpuModel !== "custom" ? selectedCpuModel : "Custom" },
         },
         logs: data.results.logs || [], // Explicitly capture logs from the API response
         raw_stats: data.raw_stats || {}, // Capture raw stats if available
@@ -441,6 +442,31 @@ export default function BenchmarkForm() {
                   step="0.1"
                   placeholder="0.3"
                   value={formData.baselineWatt}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label htmlFor="timeout">Auto-Timeout (seconds)</Label>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-4 w-4 ml-2 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      Maximum execution time in seconds before the benchmark is automatically terminated
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="timeout"
+                  name="timeout"
+                  type="number"
+                  min="1"
+                  max="3600"
+                  step="1"
+                  placeholder="60"
+                  value={formData.timeout}
                   onChange={handleChange}
                 />
               </div>
