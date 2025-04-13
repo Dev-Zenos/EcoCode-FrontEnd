@@ -38,7 +38,7 @@ export default function BenchmarkForm() {
     ramWatt: 0.15,
     baselineWatt: 0.3,
     notes: "Rough estimates for M1 MacBook Air - ADJUST FOR YOUR HARDWARE",
-    eGridRegion: defaultRegion.id, // Keep for UI purposes only
+    eGridRegion: defaultRegion.id, 
     co2Rate: defaultRegion.co2Rate,
   })
 
@@ -78,11 +78,9 @@ export default function BenchmarkForm() {
     setSelectedCpuModel(value)
 
     if (value === "custom") {
-      // Keep the current value if custom is selected
       return
     }
 
-    // Find the selected CPU model and update the wattage
     const selectedCpu = CPU_MODELS.find((cpu) => cpu.model === value)
     if (selectedCpu) {
       setFormData((prev) => ({
@@ -101,10 +99,9 @@ export default function BenchmarkForm() {
     setLoadingProgress(0)
     setLoadingStage("Initializing...")
 
-    // Start the loading animation
-    const clearLoadingAnimation = simulateLoadingStages() // Get the clear function
+    const clearLoadingAnimation = simulateLoadingStages() 
 
-    let success = false // Flag to track success
+    let success = false
 
     try {
       const res = await fetch("http://127.0.0.1:1234/upload_data", {
@@ -112,28 +109,25 @@ export default function BenchmarkForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
-            user_code_dir_relative: "../test/code", // Ensure this path is correct relative to your backend server
+            user_code_dir_relative: "../test/code", 
             code_entrypoint: formData.entrypoint,
             power_assumptions: {
               notes: formData.notes,
-              // Use parseFloat directly on the state value
-              cpu_per_core_watt: Number.parseFloat(formData.cpuWatt.toString()), // Keep toString() if state might hold non-string temporarily
+              cpu_per_core_watt: Number.parseFloat(formData.cpuWatt.toString()), 
               ram_per_gb_watt: Number.parseFloat(formData.ramWatt.toString()),
               baseline_container_watt: Number.parseFloat(formData.baselineWatt.toString()),
             },
             repo_url: formData.repoUrl,
-            co2_rate: formData.co2Rate, // Sending the correct rate
+            co2_rate: formData.co2Rate, 
           },
         }),
       })
 
       if (!res.ok) {
-        // Try to get error details from response if possible
         let errorBody = "Unknown error"
         try {
           errorBody = await res.text() // or res.json() if the API returns JSON errors
         } catch (parseError) {
-          // Ignore if parsing fails
         }
         throw new Error(`Failed to submit benchmark request (Status: ${res.status}): ${errorBody}`)
       }
@@ -149,7 +143,7 @@ export default function BenchmarkForm() {
       const enhancedData = {
         ...data,
         results: {
-          ...(data.results || {}), // Ensure data.results exists
+          ...(data.results || {}), 
           regionName: regionInfo?.name || "Unknown Region",
           timestamp: timestamp,
           benchmarkId: benchmarkId,

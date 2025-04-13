@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Image from "next/image"
-import { EGRID_REGIONS } from "@/lib/egrid-data" // Import from the separate data file
+import { EGRID_REGIONS } from "@/lib/egrid-data" 
 
 type EGridRegionMapProps = {
   selectedRegion: string

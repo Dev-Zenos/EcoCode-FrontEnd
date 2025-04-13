@@ -4,7 +4,7 @@ import { ArrowRight, Leaf, Zap, BarChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function Hero() {
-  // Function to scroll to the benchmark form
+  
   const scrollToBenchmarkForm = () => {
     const benchmarkFormElement = document.getElementById("benchmark-form")
     if (benchmarkFormElement) {

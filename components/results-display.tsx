@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { EGRID_REGIONS } from "@/lib/egrid-data"
 
-// Update the BenchmarkResults type to include raw_stats
+
 type BenchmarkResults = {
   message: string
   status: string
@@ -63,7 +63,6 @@ type BenchmarkHistoryItem = {
   result: BenchmarkResults
 }
 
-// Add the PerformanceChart component inside the ResultsDisplay component, before the return statement
 function PerformanceChart({
   rawStats,
 }: { rawStats: Array<{ time: number; cpu_perc_str: string; mem_usage_mib: number }> }) {
@@ -77,17 +76,17 @@ function PerformanceChart({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Clear canvas
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Set dimensions
+    
     const width = canvas.width
     const height = canvas.height
     const padding = { top: 20, right: 20, bottom: 30, left: 50 }
     const chartWidth = width - padding.left - padding.right
     const chartHeight = height - padding.top - padding.bottom
 
-    // Process data
+    
     const cpuData = rawStats.map((stat) => ({
       time: stat.time,
       value: Number.parseFloat(stat.cpu_perc_str.replace("%", "")),
@@ -98,7 +97,7 @@ function PerformanceChart({
       value: stat.mem_usage_mib,
     }))
 
-    // Normalize time to seconds from start
+    
     const startTime = rawStats[0].time
     const normalizedCpuData = cpuData.map((point) => ({
       time: point.time - startTime,
@@ -110,28 +109,28 @@ function PerformanceChart({
       value: point.value,
     }))
 
-    // Find min/max values for scaling
+    
     const maxTime = Math.max(...normalizedCpuData.map((d) => d.time))
-    const maxCpu = 100 // CPU percentage is always 0-100
-    const maxMem = Math.max(...memData.map((d) => d.value)) * 1.1 // Add 10% padding
+    const maxCpu = 100 
+    const maxMem = Math.max(...memData.map((d) => d.value)) * 1.1 
 
-    // Draw axes
+    
     ctx.strokeStyle = "#ccc"
     ctx.lineWidth = 1
 
-    // X-axis
+    
     ctx.beginPath()
     ctx.moveTo(padding.left, height - padding.bottom)
     ctx.lineTo(width - padding.right, height - padding.bottom)
     ctx.stroke()
 
-    // Y-axis
+    
     ctx.beginPath()
     ctx.moveTo(padding.left, padding.top)
     ctx.lineTo(padding.left, height - padding.bottom)
     ctx.stroke()
 
-    // X-axis labels (time)
+    
     ctx.fillStyle = "#666"
     ctx.font = "10px sans-serif"
     ctx.textAlign = "center"
@@ -141,7 +140,7 @@ function PerformanceChart({
       const x = padding.left + (t / maxTime) * chartWidth
       ctx.fillText(`${t.toFixed(0)}s`, x, height - padding.bottom + 15)
 
-      // Grid line
+      
       ctx.strokeStyle = "#eee"
       ctx.beginPath()
       ctx.moveTo(x, height - padding.bottom)
@@ -149,19 +148,19 @@ function PerformanceChart({
       ctx.stroke()
     }
 
-    // Y-axis labels (CPU - left side)
+    
     ctx.textAlign = "right"
-    ctx.fillStyle = "#E11D48" // Red for CPU
+    ctx.fillStyle = "#E11D48" 
 
-    const cpuStep = 20 // 0, 20, 40, 60, 80, 100
+    const cpuStep = 20 
     for (let cpu = 0; cpu <= maxCpu; cpu += cpuStep) {
       const y = height - padding.bottom - (cpu / maxCpu) * chartHeight
       ctx.fillText(`${cpu}%`, padding.left - 10, y + 3)
     }
 
-    // Y-axis labels (Memory - right side)
+    
     ctx.textAlign = "left"
-    ctx.fillStyle = "#2563EB" // Blue for Memory
+    ctx.fillStyle = "#2563EB" 
 
     const memStep = maxMem / 5
     for (let mem = 0; mem <= maxMem; mem += memStep) {
@@ -169,8 +168,8 @@ function PerformanceChart({
       ctx.fillText(`${mem.toFixed(1)} MiB`, width - padding.right + 10, y + 3)
     }
 
-    // Draw CPU line
-    ctx.strokeStyle = "#E11D48" // Red
+    
+    ctx.strokeStyle = "#E11D48" 
     ctx.lineWidth = 2
     ctx.beginPath()
 
@@ -187,8 +186,8 @@ function PerformanceChart({
 
     ctx.stroke()
 
-    // Draw Memory line
-    ctx.strokeStyle = "#2563EB" // Blue
+    
+    ctx.strokeStyle = "#2563EB" 
     ctx.lineWidth = 2
     ctx.beginPath()
 
@@ -205,7 +204,7 @@ function PerformanceChart({
 
     ctx.stroke()
 
-    // Draw data points for CPU
+    
     normalizedCpuData.forEach((point) => {
       const x = padding.left + (point.time / maxTime) * chartWidth
       const y = height - padding.bottom - (point.value / maxCpu) * chartHeight
@@ -216,7 +215,7 @@ function PerformanceChart({
       ctx.fill()
     })
 
-    // Draw data points for Memory
+    
     normalizedMemData.forEach((point) => {
       const x = padding.left + (point.time / maxTime) * chartWidth
       const y = height - padding.bottom - (point.value / maxMem) * chartHeight
@@ -227,27 +226,27 @@ function PerformanceChart({
       ctx.fill()
     })
 
-    // Add legend
+    
     ctx.fillStyle = "#333"
     ctx.font = "12px sans-serif"
     ctx.textAlign = "left"
 
-    // CPU legend
+    
     ctx.fillStyle = "#E11D48"
     ctx.fillRect(padding.left, padding.top - 15, 12, 12)
     ctx.fillText("CPU Usage", padding.left + 18, padding.top - 5)
 
-    // Memory legend
+    
     ctx.fillStyle = "#2563EB"
     ctx.fillRect(padding.left + 100, padding.top - 15, 12, 12)
     ctx.fillText("Memory Usage", padding.left + 118, padding.top - 5)
 
-    // Add hover functionality
+    
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       const mouseX = e.clientX - rect.left
 
-      // Find closest data point
+      
       let closestPoint = null
       let minDistance = Number.POSITIVE_INFINITY
 
@@ -301,7 +300,7 @@ export default function ResultsDisplay() {
   const [logContent, setLogContent] = useState<string>("")
 
   useEffect(() => {
-    // Load benchmark history
+    
     const historyString = localStorage.getItem("benchmarkHistory")
     if (historyString) {
       try {
@@ -312,7 +311,7 @@ export default function ResultsDisplay() {
       }
     }
 
-    // Load current benchmark result
+    
     const storedResults = localStorage.getItem("currentBenchmarkResult")
     if (storedResults) {
       try {
@@ -324,7 +323,7 @@ export default function ResultsDisplay() {
           setSelectedBenchmarkId(parsedResults.results.benchmarkId)
         }
 
-        // Process logs - handle both array and string formats
+        
         processLogs(parsedResults)
       } catch (e) {
         console.error("Error parsing stored results:", e)
@@ -332,12 +331,12 @@ export default function ResultsDisplay() {
     }
   }, [])
 
-  // Process logs from various possible locations in the result object
+  
   const processLogs = (resultObj: any) => {
     let logsFound = false
     let logsContent = ""
 
-    // Check for logs at the top level
+    
     if (resultObj.logs) {
       logsFound = true
       if (Array.isArray(resultObj.logs)) {
@@ -347,7 +346,7 @@ export default function ResultsDisplay() {
       }
       console.log("Found logs at top level:", logsContent)
     }
-    // Check for logs in the results object
+    
     else if (resultObj.results?.logs) {
       logsFound = true
       if (Array.isArray(resultObj.results.logs)) {
@@ -357,13 +356,13 @@ export default function ResultsDisplay() {
       }
       console.log("Found logs in results object:", logsContent)
     }
-    // Check for output property
+    
     else if (resultObj.output) {
       logsFound = true
       logsContent = String(resultObj.output)
       console.log("Found output property:", logsContent)
     }
-    // Check for console property
+    
     else if (resultObj.console) {
       logsFound = true
       logsContent = String(resultObj.console)
@@ -378,7 +377,7 @@ export default function ResultsDisplay() {
     }
   }
 
-  // Load a specific benchmark from history
+  
   const loadBenchmark = (benchmarkId: string) => {
     const benchmark = benchmarkHistory.find((item) => item.id === benchmarkId)
     if (benchmark) {
@@ -386,12 +385,12 @@ export default function ResultsDisplay() {
       setSelectedBenchmarkId(benchmarkId)
       localStorage.setItem("currentBenchmarkResult", JSON.stringify(benchmark.result))
 
-      // Process logs from the loaded benchmark
+      
       processLogs(benchmark.result)
     }
   }
 
-  // Format date for display
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return new Intl.DateTimeFormat("en-US", {
@@ -417,9 +416,9 @@ export default function ResultsDisplay() {
 
   const { results: benchmarkData } = results
 
-  // Calculate carbon footprint using the provided CO2 rate if available
-  const co2Rate = benchmarkData.co2_rate || 0.5 // Use provided rate or default to 0.5 kg/kWh
-  const carbonFootprint = benchmarkData.energy_kwh * co2Rate // in kg CO2
+  
+  const co2Rate = benchmarkData.co2_rate || 0.5 
+  const carbonFootprint = benchmarkData.energy_kwh * co2Rate 
 
   return (
     <Card className="shadow-md">
@@ -596,7 +595,7 @@ export default function ResultsDisplay() {
                     </thead>
                     <tbody>
                       {benchmarkData.raw_stats.map((stat, index) => {
-                        // Calculate seconds from start
+                        
                         const startTime = benchmarkData.raw_stats[0].time
                         const relativeTime = (stat.time - startTime).toFixed(1)
 

@@ -1,4 +1,3 @@
-// Data moved to a separate file to be imported by multiple components
 
 export const EGRID_REGIONS = [
     { id: "AKGD", name: "ASCC Alaska Grid", x: 120, y: 450, co2Rate: 899.003 },
